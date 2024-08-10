@@ -1,4 +1,6 @@
+import 'package:app_aaun/screen/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,10 +12,31 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
+  void checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('login') == true) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+          (route) => false);
+    }
+  }
+
   @override
-  void login() {
+  void initState() {
+    checkLogin();
+    super.initState();
+  }
+
+  void login() async {
+    final prefs = await SharedPreferences.getInstance();
+
     if (_formkey.currentState!.validate()) {
-      Navigator.pushNamed(context, '/');
+      prefs.setBool('login', true);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+          (route) => false);
     }
   }
 
@@ -65,12 +88,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (value == null || value!.isEmpty) {
                     return 'Please enter your password';
                   }
-                  if (value.length < 8) {
-                    return 'Password must be at least 8 characters';
-                  }
-                  if (!value.contains(RegExp(r'[A-Z]'))) {
-                    return 'Password must contain at least one uppercase letter';
-                  }
+                  // if (value.length < 8) {
+                  //   return 'Password must be at least 8 characters';
+                  // }
+                  // if (!value.contains(RegExp(r'[A-Z]'))) {
+                  //   return 'Password must contain at least one uppercase letter';
+                  // }
                   return null;
                 },
               ),
@@ -82,10 +105,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                onPressed: () {
-                  // Perform login logic here
-                  login();
-                },
+                onPressed:
+                    // Perform login logic here
+                    login,
                 child: Text(
                   'Login',
                   style: TextStyle(color: Colors.white),
